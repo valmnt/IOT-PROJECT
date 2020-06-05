@@ -17,12 +17,23 @@ client.on("connect", function () {
 client.end();*/
 
 var Client = require("ibmiotf");
-var appClientConfig = require("./application.json");
+var appClientConfig = 
+    {
+        "org": "7q1q1p",
+        "id": "iot-project",
+        "auth-key": "a-7q1q1p-ziuj6dn3ci",
+        "auth-token": "YeboYWvn7Z*DUfYsoM",
+      }
+
 
 var appClient = new Client.IotfApplication(appClientConfig);
 
-appClient.connect();
+var connection = appClient.connect();
 
 appClient.on("connect", function () {
-  console.log("connected");
+  console.log(connection);
 });
+
+appClient.on("temp", function () {
+    console.log("temp");
+  });
