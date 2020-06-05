@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "ibmiotf": "^0.2.41",
     "mqtt": "^4.1.0"
   }
 }

@@ -1,4 +1,4 @@
-var mqtt = require("mqtt");
+/*var mqtt = require("mqtt");
 
 var client = mqtt.connect(
     "mqtt://7q1q1p.messaging.internetofthings.ibmcloud.com",
@@ -14,4 +14,15 @@ client.on("connect", function () {
     console.log("connected" + client.connected);
 });
 
-client.end();
+client.end();*/
+
+var Client = require("ibmiotf");
+var appClientConfig = require("./application.json");
+
+var appClient = new Client.IotfApplication(appClientConfig);
+
+appClient.connect();
+
+appClient.on("connect", function () {
+  console.log("connected");
+});
