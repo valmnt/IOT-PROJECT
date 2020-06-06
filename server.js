@@ -1,4 +1,8 @@
-var Client = require("ibmiotf");
+const Client = require("ibmiotf");
+const express = require('express');
+const sql = require('mysql');
+const app = express();
+
 var appClientConfig = require("./application.json");
 
 var appClient = new Client.IotfApplication(appClientConfig);
@@ -19,3 +23,18 @@ appClient.on("deviceEvent", function (deviceType, deviceId, eventType, format, p
   console.log("Device Event from :: "+deviceType+" : "+deviceId+" of event "+eventType+" with payload : "+payload);
 
 });
+
+app.get('/', function (req, res) {
+  res.render('index.ejs');
+})
+
+app.get('/login', function (req, res) {
+  res.render('login.ejs');
+})
+
+app.get('/connection', function (req, res) {
+  
+})
+
+
+app.listen(3000);
