@@ -29,8 +29,9 @@ function connect(req, res) {
         console.log(rows);
 
         if (rows.length != 0) {
-            req.session.username = username;
-            console.log(req.session.username)
+            req.session.username = rows[0].username;
+            req.session.device = rows[0].device;
+            console.log(req.session.device)
             res.redirect('/dashboard');
         } else {
             res.redirect('/login');

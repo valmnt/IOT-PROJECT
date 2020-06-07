@@ -2,7 +2,7 @@ const Client = require("ibmiotf");
 const express = require('express');
 const bodyParser = require("body-parser");
 const session = require('express-session');
-const connection = require('./src/js/connection');
+const login = require('./src/js/login');
 const app = express();
 
 app.use(session({ resave: true, secret: '123456', saveUninitialized: true }));
@@ -42,12 +42,30 @@ app.get('/login', function (req, res) {
 
 app.get('/dashboard', (req, res) => {
   console.log(req.session.username)
-  res.render('dashboard.ejs');
+  res.render('dashboard.ejs', {
+    device: req.session.device
+  });
 })
 
 
 app.post('/connection', function (req, res) {
-  connection.connect(req, res)
+  login.connect(req, res)
+})
+
+app.get('/successCreate', function (req, res) {
+  res.render('successCreate.ejs');
+})
+
+app.get('/addDevice', function (req, res) {
+  if (req.session.device === 0) {
+    const addDevice = require('./src/js/add_device')
+    addDevice.creationDevice(req.session.username)
+    res.redirect('/successCreate')
+  } else {
+    console.log(req.session.device)
+    res.redirect('/dashboard')
+  }
+
 })
 
 app.listen(3000);
