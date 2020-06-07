@@ -21,6 +21,7 @@ appClient.connect();
 
 appClient.on("connect", function () {
   var myData = { state: "healthy", temp: 37 };
+  session.status = "en bonne santé";
   myData = JSON.stringify(myData);
   appClient.publishDeviceEvent("DTC", "bigbossdu972", "status", "json", myData);
 
@@ -50,6 +51,7 @@ appClient.on("deviceEvent", function (
     appClient.publishDeviceEvent("DTC", "bigbossdu972", "status", "json", {
       state: "suspect",
     });
+    session.status = "suspect";
   }
 });
 
@@ -62,9 +64,9 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/dashboard", (req, res) => {
-  console.log(req.session.username);
   res.render("dashboard.ejs", {
     device: req.session.device,
+    status: session.status,
   });
 });
 
