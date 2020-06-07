@@ -47,7 +47,6 @@ app.get('/dashboard', (req, res) => {
   });
 })
 
-
 app.post('/connection', function (req, res) {
   login.connect(req, res)
 })
