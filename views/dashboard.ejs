@@ -51,6 +51,18 @@
                     <a href="/confirmSick"><button type="button" class="btn btn-lg btn-block btn-primary">Déclarer un patient</button></a>
                 </div>
             </div>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Température du patient</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <% if (payload) { %>
+                        <li><%= payload %></li>
+                        <% } %>
+                    </ul>
+                </div>
+            </div>
         <% } %>
         <% if (role === 'user') { %>
         <div class="card mb-4 shadow-sm">

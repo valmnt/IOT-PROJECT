@@ -71,8 +71,8 @@ else if(role === 'medecin') {
     format,
     payload
   ) {
-    
-  console.log(payload);
+    console.log(payload.toString())
+    session.payload = payload.toString();
 })
 }
 }
@@ -85,12 +85,14 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/dashboard", (req, res) => {
+  console.log(session.payload)
   start(session.role)
   res.render("dashboard.ejs", {
     isPublished: req.session.isPublished,
     device: req.session.device,
     status: session.status,
     role: req.session.role,
+    payload: session.payload
   });
 });
 
