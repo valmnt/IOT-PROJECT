@@ -27,6 +27,7 @@ app.get("/login", function (req, res) {
 
 app.get("/dashboard", (req, res) => {
   res.render("dashboard.ejs", {
+    isPublished: req.session.isPublished,
     device: req.session.device,
     status: session.status,
     role: req.session.role,
@@ -35,6 +36,7 @@ app.get("/dashboard", (req, res) => {
 
 app.post("/connection", function (req, res) {
   login.connect(req, res);
+  var isPublished = false;
 });
 
 app.get("/successCreate", function (req, res) {
@@ -96,15 +98,14 @@ appClient.on("deviceEvent", function (
 
 app.get('/confirmSick', function(req, res) {
   appClient.connect();
-})
 
-app.get("/dashboard", (req, res) => {
-  res.render("dashboard.ejs", {
-    device: req.session.device,
-    isPublished: req.session.isPublished,
-    status: session.status,
-  });
-});
+  appClient.on("connect", function() {
+    var myData={'status' : 'malade'};
+    myData = JSON.stringify(myData);
+    appClient.publishDeviceEvent("DTC","val", "status", "json", myData);
+})
+  res.redirect('/dashboard')
+})
 
 app.get('/medecinInfo', function(req, res) {
  appClient.connect();
@@ -138,26 +139,20 @@ if (payloadObject.status === "malade") {
   session.status = "malade";
 }
 });
+  res.redirect('/dashboard')
 })
 
 app.post("/publishTemp", function (req, res) {
-  appClient.publishDeviceEvent("DTC", "bigbossdu972", "status", "json", {
-    temp: req.body.temp,
-    state: session.status,
-  });
+  appClient.connect();
+
+  appClient.on("connect", function() {
+    appClient.publishDeviceEvent("DTC", req.session.username, "status", "json", {
+      temp: req.body.temp,
+      state: session.status,
+    });
+  })
   req.session.isPublished = true;
   res.redirect("/dashboard");
-});
-
-app.get("/addDevice", function (req, res) {
-  if (req.session.device === 0) {
-    const addDevice = require("./src/js/add_device");
-    addDevice.creationDevice(req.session.username);
-    res.redirect("/successCreate");
-  } else {
-    console.log(req.session.device);
-    res.redirect("/dashboard");
-  }
 });
 
 app.listen(3000);

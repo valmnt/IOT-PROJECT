@@ -12,6 +12,11 @@
     <nav class="navbar navbar-light bg-light" style="margin-bottom: 5%;">
         <span class="navbar-brand mb-0 h1">CovidAlert</span>
     </nav>
+    <%if (isPublished === true) { %>
+        <div class="alert alert-success" role="alert">
+            Votre température a été mise à jour
+          </div>
+      <% } %>
     <div class="card-deck mb-3 text-center">
         <%if (device === 0) { %>
 
@@ -31,36 +36,23 @@
             </div>
         </div>
         <% } %>
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Voir son device</h4>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>20 users included</li>
-                    <li>10 GB of storage</li>
-                    <li>Priority email support</li>
-                    <li>Help center access</li>
-                </ul>
-                <button type="button" class="btn btn-lg btn-block btn-primary">Voir</button>
-            </div>
-        </div>
         <% if (role === 'medecin') { %>
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Confirmer un patient</h4>
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Confirmer un patient</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <li>Vous pouvez déclarer</li>
+                        <li>un patient malade</li>
+                        <li>en tant que médecin</li>
+                        <li>si ce dernier est suspect</li>
+                    </ul>
+                    <a href="/confirmSick"><button type="button" class="btn btn-lg btn-block btn-primary">Déclarer un patient</button></a>
+                </div>
             </div>
-            <div class="card-body">
-                <ul class="list-unstyled mt-3 mb-4">
-                    <li>Vous pouvez déclarer</li>
-                    <li>un patient malade</li>
-                    <li>en tant que médecin</li>
-                    <li>si ce dernier est suspect</li>
-                </ul>
-                <a href="/confirmSick"><button type="button" class="btn btn-lg btn-block btn-primary">Déclarer un patient</button></a>
-            </div>
-        </div>
-    <% } %>
+        <% } %>
+        <% if (role === 'user') { %>
         <div class="card mb-4 shadow-sm">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Votre état de santé</h4>
@@ -98,7 +90,7 @@
                 <a href="/medecinInfo" ><button type="button" class="btn btn-lg btn-block btn-primary" style="margin-top: 15px;">Medecin confirme</button></a>
             </div>
         </div>
-    </div>
+        <% } %>
     <%if (status === 'suspect') { %> 
         <div class="card">
             <h5 class="card-header">        En tant que personne suspecte je :</h5>
@@ -122,14 +114,18 @@
             </div>
     </div>
     <% } %>
-    <form method="post" action="/publishTemp">
-        <input type="number" name="temp">
-        <input type="submit" class="btn btn-primary btn-lg btn-block" value="Publier ma température">
-      </form>
-      <%if (isPublished === true) { %>
-        <div class="alert alert-success" role="alert">
-            Votre température a été mise à jour
-          </div>
+    <%if (role === 'user') { %>
+    <div class="card mb-4 shadow-sm">
+            <div class="card-header">
+                <h4 class="my-0 font-weight-normal">Publier ma température</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" action="/publishTemp">
+                    <input type="number" name="temp">
+                    <input type="submit" class="btn btn-primary btn-lg btn-block" value="Publier ma température">
+                </form>
+            </div>
+        </div>
       <% } %>
     <!-- <a href="/publishTemp"><button type="button" class="btn btn-primary btn-lg btn-block" >Publier ma température</button></a> -->
 
