@@ -1,4 +1,5 @@
 const bdd = require('./bdd_connect');
+const session = require("express-session");
 
 function connect(req, res) {
 
@@ -29,6 +30,7 @@ function connect(req, res) {
         console.log(rows);
 
         if (rows.length != 0) {
+            session.role = rows[0].role;
             req.session.username = rows[0].username;
             req.session.device = rows[0].device;
             req.session.role = rows[0].role;

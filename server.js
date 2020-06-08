@@ -5,10 +5,6 @@ const session = require("express-session");
 const login = require("./src/js/login");
 const app = express();
 
-var appClientConfig = require("./application.json");
-
-var appClient = new Client.IotfApplication(appClientConfig);
-
 app.use(session({ resave: true, secret: "123456", saveUninitialized: true }));
 app.use(bodyParser.json());
 app.use(
@@ -17,6 +13,69 @@ app.use(
   })
 );
 
+var appClientConfig = require("./application.json");
+
+var appClient = new Client.IotfApplication(appClientConfig);
+
+function start (role) {
+  appClient.connect();
+if (role === 'user') {
+
+  appClient.on("connect", function () {
+    appClient.subscribeToDeviceEvents("DTC", 'val', "status", "json")
+    appClient.subscribeToDeviceEvents("DTC", 'iot-project', "status", "json");
+  });
+  
+  appClient.on("deviceEvent", function (
+    deviceType,
+    deviceId,
+    eventType,
+    format,
+    payload
+  ) {
+    console.log(
+      "Device Event from :: " +
+        deviceType +
+        " : " +
+        deviceId +
+        " of event " +
+        eventType +
+        " with payload : " +
+        payload
+    );
+    payloadObject = JSON.parse(payload.toString());
+   
+    if (payloadObject.status === "sick" && session.status !== 'malade') {
+      appClient.publishDeviceEvent("DTC", 'val', "status", "json", {
+        state: "suspect",
+      });
+      session.status = "suspect";
+    }
+    if (payloadObject.status === "malade") {
+      appClient.publishDeviceEvent("DTC", 'val', "status", "json", {
+        state: "malade",
+      });
+      session.status = "malade";
+    }
+  })
+}
+else if(role === 'medecin') {
+  appClient.on("connect", function () {
+    appClient.subscribeToDeviceEvents("DTC", 'val', "temp", "json")
+  });
+
+  appClient.on("deviceEvent", function (
+    deviceType,
+    deviceId,
+    eventType,
+    format,
+    payload
+  ) {
+    
+  console.log(payload);
+})
+}
+}
 app.get("/", function (req, res) {
   res.render("index.ejs");
 });
@@ -26,6 +85,7 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/dashboard", (req, res) => {
+  start(session.role)
   res.render("dashboard.ejs", {
     isPublished: req.session.isPublished,
     device: req.session.device,
@@ -36,7 +96,6 @@ app.get("/dashboard", (req, res) => {
 
 app.post("/connection", function (req, res) {
   login.connect(req, res);
-  var isPublished = false;
 });
 
 app.get("/successCreate", function (req, res) {
@@ -54,48 +113,6 @@ app.get("/addDevice", function (req, res) {
   }
 });
 
-app.get('/statusChange', function(req, res) {
-
-appClient.connect();
-
-appClient.on("connect", function () {
-  var myData = { state: "healthy", temp: 37 };
-  session.status = "en bonne santé";
-  myData = JSON.stringify(myData);
-  appClient.publishDeviceEvent("DTC", req.session.username, "status", "json", myData);
-
-  appClient.subscribeToDeviceEvents("DTC", 'iot-project', "status", "json");
-});
-
-appClient.on("deviceEvent", function (
-  deviceType,
-  deviceId,
-  eventType,
-  format,
-  payload
-) {
-  console.log(
-    "Device Event from :: " +
-      deviceType +
-      " : " +
-      deviceId +
-      " of event " +
-      eventType +
-      " with payload : " +
-      payload
-  );
-  payloadObject = JSON.parse(payload.toString());
- 
-  if (payloadObject.status === "sick") {
-    appClient.publishDeviceEvent("DTC", req.session.username, "status", "json", {
-      state: "suspect",
-    });
-    session.status = "suspect";
-  }
-})
-  res.redirect('/dashboard');
-})
-
 app.get('/confirmSick', function(req, res) {
   appClient.connect();
 
@@ -107,48 +124,13 @@ app.get('/confirmSick', function(req, res) {
   res.redirect('/dashboard')
 })
 
-app.get('/medecinInfo', function(req, res) {
- appClient.connect();
-
- appClient.on("connect", function() {
-  appClient.subscribeToDeviceEvents("DTC", req.session.username, "status", "json")
- })
- 
- appClient.on("deviceEvent", function (
-  deviceType,
-  deviceId,
-  eventType,
-  format,
-  payload
-) {
-  console.log(
-    "Device Event from :: " +
-      deviceType +
-      " : " +
-      deviceId +
-      " of event " +
-      eventType +
-      " with payload : " +
-      payload
-  )
-  payloadObject = JSON.parse(payload.toString());
-if (payloadObject.status === "malade") {
-  appClient.publishDeviceEvent("DTC", req.session.username, "status", "json", {
-    state: "malade",
-  });
-  session.status = "malade";
-}
-});
-  res.redirect('/dashboard')
-})
-
 app.post("/publishTemp", function (req, res) {
   appClient.connect();
 
   appClient.on("connect", function() {
-    appClient.publishDeviceEvent("DTC", req.session.username, "status", "json", {
+    appClient.publishDeviceEvent("DTC", req.session.username, "temp", "json", {
+      user: req.session.username,
       temp: req.body.temp,
-      state: session.status,
     });
   })
   req.session.isPublished = true;
