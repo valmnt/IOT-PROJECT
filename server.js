@@ -17,27 +17,26 @@ var appClientConfig = require("./application.json");
 
 var appClient = new Client.IotfApplication(appClientConfig);
 session.contacts = [];
-
+session.dashboardReloads = 0;
+appClient.connect();
 function start(role) {
-  console.log("e");
-  appClient.connect();
-  console.log("x");
+  console.log("sd");
   if (role === "user") {
-    console.log("d");
     appClient.on("connect", function () {
-      // appClient.subscribeToDeviceEvents("DTC", "val", "status", "json");
-      // appClient.subscribeToDeviceEvents(
-      //   "DTC",
-      //   "bigtestdu972",
-      //   "status",
-      //   "json"
-      // );
-      // appClient.subscribeToDeviceEvents(
-      //   "DTC",
-      //   "bigbossdu972",
-      //   "status",
-      //   "json"
-      // );
+      console.log("co");
+      appClient.subscribeToDeviceEvents("DTC", "test2", "status2", "json");
+      appClient.subscribeToDeviceEvents(
+        "DTC",
+        "bigtestdu972",
+        "status",
+        "json"
+      );
+      appClient.subscribeToDeviceEvents(
+        "DTC",
+        "bigbossdu972",
+        "status",
+        "json"
+      );
     });
 
     appClient.on("deviceEvent", function (
@@ -62,18 +61,18 @@ function start(role) {
 
       session.contacts.push({ deviceId, subscribedStatus });
 
-      if (payloadObject.status === "sick" && session.status !== "malade") {
+      if (payloadObject.status === "malade" && session.status !== "malade") {
         appClient.publishDeviceEvent("DTC", "val", "status", "json", {
           state: "suspect",
         });
         session.status = "suspect";
       }
-      if (payloadObject.status === "malade") {
-        appClient.publishDeviceEvent("DTC", "val", "status", "json", {
-          state: "malade",
-        });
-        session.status = "malade";
-      }
+      // if (payloadObject.status === "malade") {
+      //   appClient.publishDeviceEvent("DTC", "val", "status", "json", {
+      //     state: "malade",
+      //   });
+      //   session.status = "malade";
+      // }
     });
   } else if (role === "medecin") {
     appClient.on("connect", function () {
@@ -101,8 +100,10 @@ app.get("/login", function (req, res) {
 });
 
 app.get("/dashboard", (req, res) => {
-  console.log(session.payload);
-  start(session.role);
+  if (session.dashboardReloads < 1) {
+    start(session.role);
+  }
+  session.dashboardReloads += 1;
   res.render("dashboard.ejs", {
     isPublished: req.session.isPublished,
     device: req.session.device,
@@ -143,25 +144,26 @@ app.get("/contacts", function (req, res) {
 });
 
 app.get("/confirmSick", function (req, res) {
-  appClient.connect();
+  // appClient.connect();
 
-  appClient.on("connect", function () {
-    var myData = { status: "malade" };
-    myData = JSON.stringify(myData);
-    appClient.publishDeviceEvent("DTC", "val", "status", "json", myData);
-  });
+  // appClient.on("connect", function () {
+  var myData = { status: "malade" };
+  myData = JSON.stringify(myData);
+  appClient.publishDeviceEvent("DTC", "val", "status", "json", myData);
+  // });
   res.redirect("/dashboard");
 });
 
 app.post("/publishTemp", function (req, res) {
-  appClient.connect();
+  // appClient.connect();
 
-  appClient.on("connect", function () {
-    appClient.publishDeviceEvent("DTC", req.session.username, "temp", "json", {
-      user: req.session.username,
-      temp: req.body.temp,
-    });
+  // appClient.on("connect", function () {
+  appClient.publishDeviceEvent("DTC", req.session.username, "temp", "json", {
+    user: req.session.username,
+    temp: req.body.temp,
+    state: session.status,
   });
+  // });
   req.session.isPublished = true;
   res.redirect("/dashboard");
 });
