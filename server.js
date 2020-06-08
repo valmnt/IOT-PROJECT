@@ -66,6 +66,7 @@ app.get("/login", function (req, res) {
 app.get("/dashboard", (req, res) => {
   res.render("dashboard.ejs", {
     device: req.session.device,
+    isPublished: req.session.isPublished,
     status: session.status,
   });
 });
@@ -76,6 +77,15 @@ app.post("/connection", function (req, res) {
 
 app.get("/successCreate", function (req, res) {
   res.render("successCreate.ejs");
+});
+
+app.post("/publishTemp", function (req, res) {
+  appClient.publishDeviceEvent("DTC", "bigbossdu972", "status", "json", {
+    temp: req.body.temp,
+    state: session.status,
+  });
+  req.session.isPublished = true;
+  res.redirect("/dashboard");
 });
 
 app.get("/addDevice", function (req, res) {

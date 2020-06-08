@@ -111,6 +111,16 @@
             </div>
     </div>
     <% } %>
+    <form method="post" action="/publishTemp">
+        <input type="number" name="temp">
+        <input type="submit" class="btn btn-primary btn-lg btn-block" value="Publier ma température">
+      </form>
+      <%if (isPublished === true) { %>
+        <div class="alert alert-success" role="alert">
+            Votre température a été mise à jour
+          </div>
+      <% } %>
+    <!-- <a href="/publishTemp"><button type="button" class="btn btn-primary btn-lg btn-block" >Publier ma température</button></a> -->
 
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
