@@ -3,8 +3,9 @@ const sql = require('mysql');
 function connectBdd() {
     return connection = sql.createConnection({
         host: 'localhost',
-        user: 'covidAlert',
-        password: 'covidAlert',
+        port: '8889',
+        user: 'covidalert',
+        password: 'covidalert',
         database: 'covidalert'
     })
 }
