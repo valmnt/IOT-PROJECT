@@ -31,6 +31,7 @@ function connect(req, res) {
         if (rows.length != 0) {
             req.session.username = rows[0].username;
             req.session.device = rows[0].device;
+            req.session.role = rows[0].role;
             console.log(req.session.device)
             res.redirect('/dashboard');
         } else {
