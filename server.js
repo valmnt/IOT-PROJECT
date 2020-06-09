@@ -18,13 +18,16 @@ var appClientConfig = require("./application.json");
 var appClient = new Client.IotfApplication(appClientConfig);
 session.contacts = [];
 session.dashboardReloads = 0;
-appClient.connect();
+
 function start(role) {
   console.log("sd");
+
   if (role === "user") {
+    appClient.connect();
     appClient.on("connect", function () {
       console.log("co");
       appClient.subscribeToDeviceEvents("DTC", "test2", "status2", "json");
+      appClient.subscribeToDeviceEvents("DTC", "val", "status", "json");
       appClient.subscribeToDeviceEvents(
         "DTC",
         "bigtestdu972",
@@ -67,15 +70,17 @@ function start(role) {
         });
         session.status = "suspect";
       }
-      // if (payloadObject.status === "malade") {
-      //   appClient.publishDeviceEvent("DTC", "val", "status", "json", {
-      //     state: "malade",
-      //   });
-      //   session.status = "malade";
-      // }
+      if (payloadObject.status === "maladeSur") {
+        appClient.publishDeviceEvent("DTC", "val", "status", "json", {
+          state: "malade",
+        });
+        session.status = "malade";
+      }
     });
   } else if (role === "medecin") {
+    appClient.connect();
     appClient.on("connect", function () {
+      console.log("med");
       appClient.subscribeToDeviceEvents("DTC", "val", "temp", "json");
     });
 
@@ -147,7 +152,7 @@ app.get("/confirmSick", function (req, res) {
   // appClient.connect();
 
   // appClient.on("connect", function () {
-  var myData = { status: "malade" };
+  var myData = { status: "maladeSur" };
   myData = JSON.stringify(myData);
   appClient.publishDeviceEvent("DTC", "val", "status", "json", myData);
   // });
